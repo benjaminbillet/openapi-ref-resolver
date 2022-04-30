@@ -1,0 +1,9 @@
+src
+tests
+.prettierrc
+babel.config.json
+webpack.config.js
+tsconfig.json
+.eslintrc.json
+.eslintignore
+.editorconfig
