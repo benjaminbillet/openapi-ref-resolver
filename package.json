@@ -1,6 +1,6 @@
 {
   "name": "openapi-ref-resolver",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,7 +22,20 @@
     "type": "git",
     "url": "git+https://github.com/benjaminbillet/openapi-ref-resolver.git"
   },
-  "keywords": [],
+  "keywords": [
+    "openapi",
+    "open-api",
+    "spec",
+    "specification",
+    "parse",
+    "parser",
+    "resolver",
+    "bundle",
+    "reference",
+    "dereference",
+    "json",
+    "yaml"
+  ],
   "author": "",
   "license": "MIT",
   "bugs": {
@@ -51,7 +64,6 @@
     "webpack-cli": "^4.9.2"
   },
   "dependencies": {
-    "handlebars": "^4.7.7",
     "js-yaml": "^4.1.0"
   },
   "engines": {

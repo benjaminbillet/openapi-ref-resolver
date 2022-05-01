@@ -1,9 +1,10 @@
 import path from 'path';
-import { bundleOpenApiSpec, parseOpenApiSpec } from '../../src';
+import { bundle } from '../../src/openapi/bundle';
+import { dereferenceOpenApiSpec, parseOpenApiSpec } from '../../src';
 
 const runTest = (testDir: string) => {
   const rootFile = path.resolve(__dirname, '..', 'input-apis', testDir, 'api.yaml');
-  const spec = bundleOpenApiSpec(rootFile);
+  const spec = dereferenceOpenApiSpec(rootFile);
   const expected = parseOpenApiSpec(path.resolve(__dirname, testDir, 'api.json'));
   expect(spec).toEqual(expected);
 };

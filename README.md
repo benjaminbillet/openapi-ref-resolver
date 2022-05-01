@@ -1,6 +1,6 @@
 # openapi-ref-resolver
 
-Simple resolver for bundling OpenAPI specifications (YAML and JSON).
+Simple resolver for bundling/dereferencing OpenAPI specifications (YAML and JSON).
 
 Supported OpenAPI versions:
 - 3.0.0, 3.0.1, 3.0.2
@@ -11,20 +11,24 @@ Supported OpenAPI versions:
 npm install openapi-ref-resolver
 ```
 
+Bundle:
 ```javascript
 import { bundleOpenApiSpec } from 'openapi-ref-resolver';
 
-try {
-  const bundled = bundleOpenApiSpec('./api.yaml');
-  console.log(JSON.stringify(bundled, null, 2));
-} catch (err) {
-  console.log(err);
-}
+const bundled = bundleOpenApiSpec('./api.yaml');
+console.log(JSON.stringify(bundled, null, 2));
+```
+
+Dereference:
+```javascript
+import { dereferenceOpenApiSpec } from 'openapi-ref-resolver';
+
+const dereferenced = dereferenceOpenApiSpec('./api.yaml');
+console.log(JSON.stringify(dereferenced, null, 2));
 ```
 
 ## Missing features
 
-- Dereference
 - Support for OpenAPI v2
 - Resolve URI references (only `file:` scheme is supported)
 
@@ -35,9 +39,9 @@ I started this project while I was working on some OpenAPI-based custom code gen
 Long story short, I never managed to find a library that satisfies the following requirements, even for the simplest specs:
 
 - `paths` references inlined, all other references locally resolved into `components/*` depending on their types.
-- produce readable local references and not things like `#/paths/~1api~1v1~garbledstud/post/requestBody/content/application~1json/schema/properties/ohgodwhy`
+- generate readable local references, not `#/paths/~1api~1v1~garbledstuff/post/requestBody/content/application~1json/schema/properties/oh/god/why`
 - Javascript library
 - no preprocessing required with a manual tool
-- produces a valid spec file
+- produce a valid spec file
 
-My lib certainly has quirks too, so please open issues. Also, the code is very simple and PRs are welcome!
+This library certainly has quirks too, so please open issues. Also, the code is very simple and PRs are welcome!
