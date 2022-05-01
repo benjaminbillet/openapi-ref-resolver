@@ -4,6 +4,7 @@ import fs from 'fs';
 import { getProtocol } from '../util/uri';
 import { Dict, OpenApiNode } from '../types/common';
 
+
 export default class {
   private refCache: Dict<OpenApiNode> = {};
 
@@ -27,7 +28,7 @@ export default class {
   private followPath(document: any, path: string): OpenApiNode {
     const parts = path.split('/');
     const value = parts.reduce((result, part) => {
-      return result[part.replace('~0', '~').replace('~1', '/')];
+      return result[part.replaceAll('~0', '~').replaceAll('~1', '/')];
     }, document);
     return value;
   }

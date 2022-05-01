@@ -30,6 +30,7 @@ export interface VisitorEventProps {
   originalValue: OpenApiNode;
   resolvedValue: OpenApiNode;
   resolvedDocument: OpenApiNode;
+  objectPath: VisitedPath;
 }
 
 export interface PathEventProps extends VisitorEventProps {
@@ -53,3 +54,5 @@ export interface ComponentEventProps extends VisitorEventProps {
 export type VisitorEvent = PathEventProps | MappingEventProps | ComponentEventProps;
 
 export type VisitorCallback = (event: VisitorEvent) => void;
+
+export type VisitedPath = (number | string)[];

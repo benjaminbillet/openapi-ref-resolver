@@ -3,6 +3,7 @@ import path from 'path';
 import yaml from 'js-yaml';
 import { FileFormat, OpenApiNode } from './types/common';
 import { bundle } from './openapi/bundle';
+import { dereference } from './openapi/dereference';
 
 export const parseOpenApiSpec = (rootFile: string, type?: FileFormat): OpenApiNode => {
   let fileType = type || 'yaml';
@@ -22,4 +23,9 @@ export const parseOpenApiSpec = (rootFile: string, type?: FileFormat): OpenApiNo
 export const bundleOpenApiSpec = (rootFile: string, type?: FileFormat): OpenApiNode => {
   const openApi = parseOpenApiSpec(rootFile, type);
   return bundle(openApi, rootFile);
+};
+
+export const dereferenceOpenApiSpec = (rootFile: string, type?: FileFormat): OpenApiNode => {
+  const openApi = parseOpenApiSpec(rootFile, type);
+  return dereference(openApi, rootFile);
 };
