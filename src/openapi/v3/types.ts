@@ -1,7 +1,6 @@
-import { OpenApiNode } from '../../types/common';
+import { Dict, OpenApiNode } from '../../types/common';
 
 export enum ObjectType {
-  PATH = 'paths',
   PARAMETER = 'parameters',
   EXAMPLE = 'examples',
   REQUEST_BODY = 'requestBodies',
@@ -13,18 +12,44 @@ export enum ObjectType {
   HEADER = 'headers',
 }
 
+export enum EventType {
+  PATH,
+  MAPPING,
+  COMPONENT,
+}
+
 export interface ParsedRef {
   remote: string;
   local: string;
   full: string;
 }
 
-export type VisitorCallback = (
-  objectType: ObjectType,
-  originalRef: string,
-  parsedRef: ParsedRef,
-  originalValue: { $ref: string },
-  resolvedValue: OpenApiNode,
-  resolvedDocument: OpenApiNode,
-  pathParentKey?: string,
-) => void;
+export interface VisitorEventProps {
+  originalRef: string;
+  parsedRef: ParsedRef;
+  originalValue: OpenApiNode;
+  resolvedValue: OpenApiNode;
+  resolvedDocument: OpenApiNode;
+}
+
+export interface PathEventProps extends VisitorEventProps {
+  type: EventType.PATH;
+  pathParentKey: string;
+}
+
+export interface MappingEventProps {
+  type: EventType.MAPPING;
+  refs: OpenApiNode[];
+  mapping: Dict;
+  document: OpenApiNode;
+  baseFile: string;
+}
+
+export interface ComponentEventProps extends VisitorEventProps {
+  type: EventType.COMPONENT;
+  objectType: ObjectType;
+}
+
+export type VisitorEvent = PathEventProps | MappingEventProps | ComponentEventProps;
+
+export type VisitorCallback = (event: VisitorEvent) => void;

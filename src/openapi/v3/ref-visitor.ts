@@ -1,8 +1,83 @@
 import ReferenceSolver from '../ref-solver';
-import { ObjectType, VisitorCallback } from './types';
+import {
+  ComponentEventProps,
+  EventType,
+  MappingEventProps,
+  ObjectType,
+  ParsedRef,
+  PathEventProps,
+  VisitorCallback,
+} from './types';
 import { Dict, OpenApiNode } from '../../types/common';
 
 const METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'];
+
+const buildComponentEvent = (
+  objectType: ObjectType,
+  originalRef: string,
+  parsedRef: ParsedRef,
+  originalValue: OpenApiNode,
+  resolvedValue: OpenApiNode,
+  resolvedDocument: OpenApiNode,
+): ComponentEventProps => ({
+  type: EventType.COMPONENT,
+  objectType,
+  originalRef,
+  parsedRef,
+  originalValue,
+  resolvedValue,
+  resolvedDocument,
+});
+
+const buildPathEvent = (
+  originalRef: string,
+  parsedRef: ParsedRef,
+  originalValue: OpenApiNode,
+  resolvedValue: OpenApiNode,
+  resolvedDocument: OpenApiNode,
+  pathParentKey: string,
+): PathEventProps => ({
+  type: EventType.PATH,
+  originalRef,
+  parsedRef,
+  originalValue,
+  resolvedValue,
+  resolvedDocument,
+  pathParentKey,
+});
+
+const buildMappingEvent = (
+  refs: OpenApiNode[],
+  mapping: Dict,
+  document: OpenApiNode,
+  baseFile: string,
+): MappingEventProps => ({
+  type: EventType.MAPPING,
+  refs,
+  mapping,
+  document,
+  baseFile,
+});
+
+const visitComposition = (
+  document: OpenApiNode,
+  baseFile: string,
+  refSolver: ReferenceSolver,
+  composition: OpenApiNode,
+  branches: OpenApiNode[],
+  callback: VisitorCallback,
+) => {
+  if (!composition || !branches) {
+    return;
+  }
+  branches.forEach((branch: OpenApiNode) => {
+    visitSchema(document, baseFile, refSolver, branch, callback);
+  });
+  console.log(composition.discriminator);
+  if (composition.discriminator?.mapping) {
+    callback(buildMappingEvent(branches, composition.discriminator?.mapping, document, baseFile));
+  }
+};
 
 const visitSchema = (
   document: OpenApiNode,
@@ -22,17 +97,19 @@ const visitSchema = (
     nextBaseFile = ref.remote;
     nextDocument = doc;
     nextObject = value;
-    callback(ObjectType.SCHEMA, schema.$ref, ref, schema, nextObject, nextDocument);
+    callback(buildComponentEvent(ObjectType.SCHEMA, schema.$ref, ref, schema, nextObject, nextDocument));
   }
-  // oneOf
-  // anyOf
-  // allOf
-  // not
+
+  visitComposition(nextDocument, nextBaseFile, refSolver, nextObject, nextObject.oneOf, callback);
+  visitComposition(nextDocument, nextBaseFile, refSolver, nextObject, nextObject.anyOf, callback);
+  visitComposition(nextDocument, nextBaseFile, refSolver, nextObject, nextObject.allOf, callback);
+  visitSchema(nextDocument, nextBaseFile, refSolver, nextObject.not, callback);
+
   if (nextObject.items) {
     visitSchema(nextDocument, nextBaseFile, refSolver, nextObject.items, callback);
   }
   if (nextObject.properties) {
-    Object.entries(nextObject.properties).forEach(([, property]: any) => {
+    Object.values<OpenApiNode>(nextObject.properties).forEach((property) => {
       visitSchema(nextDocument, nextBaseFile, refSolver, property, callback);
     });
   }
@@ -61,7 +138,9 @@ const visitRequestBody = (
     nextBaseFile = ref.remote;
     nextDocument = doc;
     nextObject = value;
-    callback(ObjectType.REQUEST_BODY, requestBody.$ref, ref, requestBody, nextObject, nextDocument);
+    callback(
+      buildComponentEvent(ObjectType.REQUEST_BODY, requestBody.$ref, ref, requestBody, nextObject, nextDocument),
+    );
   }
   visitMediaTypes(nextDocument, nextBaseFile, refSolver, nextObject.content, callback);
 };
@@ -76,10 +155,10 @@ const visitExamples = (
   if (!examples) {
     return;
   }
-  Object.entries(examples).forEach(([, example]: any) => {
+  Object.values<OpenApiNode>(examples).forEach((example) => {
     if (refSolver.isReference(example)) {
       const { value, ref, document: doc } = refSolver.resolve(example.$ref, document, baseFile);
-      callback(ObjectType.EXAMPLE, example.$ref, ref, example, value, doc);
+      callback(buildComponentEvent(ObjectType.EXAMPLE, example.$ref, ref, example, value, doc));
     }
   });
 };
@@ -94,10 +173,10 @@ const visitCallbacks = (
   if (!callbacks) {
     return;
   }
-  Object.entries(callbacks).forEach(([, callback]: any) => {
+  Object.values<OpenApiNode>(callbacks).forEach((callback) => {
     if (refSolver.isReference(callback)) {
       const { value, ref, document: doc } = refSolver.resolve(callback.$ref, document, baseFile);
-      visitorCallback(ObjectType.CALLBACK, callback.$ref, ref, callback, value, doc);
+      visitorCallback(buildComponentEvent(ObjectType.CALLBACK, callback.$ref, ref, callback, value, doc));
     }
   });
 };
@@ -112,10 +191,10 @@ const visitHeaders = (
   if (!headers) {
     return;
   }
-  Object.entries(headers).forEach(([, header]) => {
+  Object.values<OpenApiNode>(headers).forEach((header) => {
     if (refSolver.isReference(header)) {
       const { value, ref, document: doc } = refSolver.resolve(header.$ref, document, baseFile);
-      callback(ObjectType.HEADER, header.$ref, ref, header, value, doc);
+      callback(buildComponentEvent(ObjectType.HEADER, header.$ref, ref, header, value, doc));
     }
   });
 };
@@ -130,10 +209,10 @@ const visitLinks = (
   if (!links) {
     return;
   }
-  Object.entries(links).forEach(([, link]) => {
+  Object.values<OpenApiNode>(links).forEach((link) => {
     if (refSolver.isReference(link)) {
       const { value, ref, document: doc } = refSolver.resolve(link.$ref, document, baseFile);
-      callback(ObjectType.LINK, link.$ref, ref, link, value, doc);
+      callback(buildComponentEvent(ObjectType.LINK, link.$ref, ref, link, value, doc));
     }
   });
 };
@@ -148,7 +227,7 @@ const visitMediaTypes = (
   if (!mediaTypes) {
     return;
   }
-  Object.entries(mediaTypes).forEach(([, media]: any) => {
+  Object.values<OpenApiNode>(mediaTypes).forEach((media) => {
     visitSchema(document, baseFile, refSolver, media.schema, callback);
     visitExamples(document, baseFile, refSolver, media.examples, callback);
   });
@@ -164,7 +243,7 @@ const visitResponses = (
   if (!responses) {
     return;
   }
-  Object.entries(responses).forEach(([, response]) => {
+  Object.values<OpenApiNode>(responses).forEach((response) => {
     let nextBaseFile = baseFile;
     let nextDocument = document;
     let nextObject = response;
@@ -173,7 +252,7 @@ const visitResponses = (
       nextBaseFile = ref.remote;
       nextDocument = doc;
       nextObject = value;
-      callback(ObjectType.RESPONSE, response.$ref, ref, response, nextObject, nextDocument);
+      callback(buildComponentEvent(ObjectType.RESPONSE, response.$ref, ref, response, nextObject, nextDocument));
     }
     visitMediaTypes(nextDocument, nextBaseFile, refSolver, nextObject.content, callback);
     visitHeaders(nextDocument, nextBaseFile, refSolver, nextObject.headers, callback);
@@ -200,7 +279,7 @@ const visitPathParameters = (
       nextBaseFile = ref.remote;
       nextDocument = doc;
       nextObject = value;
-      callback(ObjectType.PARAMETER, parameter.$ref, ref, parameter, nextObject, nextDocument);
+      callback(buildComponentEvent(ObjectType.PARAMETER, parameter.$ref, ref, parameter, nextObject, nextDocument));
     }
     visitSchema(nextDocument, nextBaseFile, refSolver, nextObject.schema, callback);
     visitExamples(nextDocument, nextBaseFile, refSolver, nextObject.examples, callback);
@@ -239,7 +318,7 @@ export const visit = (
         nextBaseFile = ref.remote;
         nextDocument = doc;
         nextObject = value;
-        callback(ObjectType.PATH, apiPath.$ref, ref, apiPath, nextObject, nextDocument, key);
+        callback(buildPathEvent(apiPath.$ref, ref, apiPath, nextObject, nextDocument, key));
       }
       visitPathParameters(nextDocument, nextBaseFile, refSolver, nextObject.parameters, callback);
       METHODS.forEach((method) => {
