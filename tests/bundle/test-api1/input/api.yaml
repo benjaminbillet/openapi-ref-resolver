@@ -1,0 +1,33 @@
+openapi: 3.0.2
+info:
+  title: Multiple file API, with already existing local components
+paths:
+  /api/resource:
+    get:
+      parameters:
+        - name: param1
+          in: query
+          schema:
+            $ref: '#/components/schemas/param'
+        - $ref: '#/components/parameters/param2'
+        - name: param3
+          in: query
+          schema:
+            $ref: '#/components/schemas/param'
+        - name: param4
+          in: query
+          schema:
+            $ref: './schemas.yaml#/param'
+      responses:
+        '204':
+          description: No Content
+components:
+  schemas:
+    param:
+      type: string
+  parameters:
+    param2:
+      name: param2
+      in: query
+      schema:
+        type: string

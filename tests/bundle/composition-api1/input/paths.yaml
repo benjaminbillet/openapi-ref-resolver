@@ -1,0 +1,8 @@
+resource:
+  get:
+    responses:
+      '204':
+        content:
+          application/json:
+            schema:
+              $ref: './models/resource.yaml#/resource'

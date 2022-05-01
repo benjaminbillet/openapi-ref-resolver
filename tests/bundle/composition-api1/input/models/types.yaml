@@ -1,0 +1,24 @@
+stringValue:
+  type: object
+  properties:
+    value:
+      type: number
+
+common:
+  type: object
+  properties:
+    discriminator:
+      type: string
+
+subtype1:
+  allOf:
+    - $ref: '#/common'
+    - type: object
+      properties:
+        value:
+          type: number
+
+subtype2:
+  allOf:
+    - $ref: '#/common'
+    - $ref: '#/stringValue'

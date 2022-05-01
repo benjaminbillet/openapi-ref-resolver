@@ -1,0 +1,36 @@
+oneOfPropNoMapping:
+  oneOf:
+    - $ref: './types.yaml#/subtype1'
+    - $ref: './types.yaml#/subtype2'
+    - type: object
+      properties:
+        value:
+          type: boolean
+
+oneOfPropMapping:
+  oneOf:
+    - $ref: './types.yaml#/subtype1'
+    - $ref: './types.yaml#/subtype2'
+  discriminator:
+    propertyName: discriminator
+    mapping:
+      type1: './types.yaml#/subtype1'
+      type2: './types.yaml#/subtype2'
+
+resource:
+  type: object
+  properties:
+    oneOfProp:
+      oneOf:
+        - $ref: './types.yaml#/subtype1'
+        - $ref: './types.yaml#/subtype2'
+        - allOf:
+          - $ref: './types.yaml#/common'
+          - type: object
+            properties:
+              value:
+                type: integer
+    oneOfPropNoMapping:
+      $ref: '#/oneOfPropNoMapping'
+    oneOfPropMapping:
+      $ref: '#/oneOfPropMapping'

@@ -73,7 +73,6 @@ const visitComposition = (
   branches.forEach((branch: OpenApiNode) => {
     visitSchema(document, baseFile, refSolver, branch, callback);
   });
-  console.log(composition.discriminator);
   if (composition.discriminator?.mapping) {
     callback(buildMappingEvent(branches, composition.discriminator?.mapping, document, baseFile));
   }

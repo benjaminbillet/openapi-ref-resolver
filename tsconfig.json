@@ -20,6 +20,7 @@
   "exclude": [
     "node_modules",
     "dist",
-    "webpack.config.js"
+    "webpack.config.js",
+    "jest.config.js"
   ]
 }
