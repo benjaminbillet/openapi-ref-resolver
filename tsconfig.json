@@ -10,7 +10,10 @@
     "removeComments": true,
     "preserveConstEnums": true,
     "resolveJsonModule": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "dist"
   },
   "ts-node": {
     "compilerOptions": {
@@ -18,6 +21,7 @@
     }
   },
   "exclude": [
+    "tests",
     "node_modules",
     "dist",
     "webpack.config.js",

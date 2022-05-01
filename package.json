@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "execute": "ts-node src/index.ts",
     "format": "prettier --write '**/*.js' && eslint --fix .",
@@ -12,7 +13,7 @@
     "lint:types": "tsc --noEmit -p tsconfig.json",
     "prettify": "eslint . --ext .ts,.js --fix",
     "clean": "rimraf dist",
-    "package": "webpack --config webpack.config.js --mode=production",
+    "package": "npm run clean ; webpack --config webpack.config.js --mode=production",
     "test": "jest --passWithNoTests",
     "test:cov": "jest --passWithNoTests --coverage",
     "prepublish": "npm run package"

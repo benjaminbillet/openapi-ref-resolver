@@ -1,3 +1,4 @@
+node_modules
 src
 tests
 .prettierrc
@@ -7,3 +8,5 @@ tsconfig.json
 .eslintrc.json
 .eslintignore
 .editorconfig
+jest.config.js
+.gitignore
