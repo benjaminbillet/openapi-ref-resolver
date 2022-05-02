@@ -5,6 +5,8 @@ import { FileFormat, OpenApiNode } from './types/common';
 import { bundle } from './openapi/bundle';
 import { dereference } from './openapi/dereference';
 
+export { FileFormat, OpenApiNode } from './types/common';
+
 export const parseOpenApiSpec = (rootFile: string, type?: FileFormat): OpenApiNode => {
   let fileType = type || 'yaml';
   if (!type) {

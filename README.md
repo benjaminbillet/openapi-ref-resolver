@@ -34,11 +34,11 @@ console.log(JSON.stringify(dereferenced, null, 2));
 
 ## But why another reference resolver?
 
-I started this project while I was working on some OpenAPI-based custom code generator. At that time, I tried several libraries for bundling a multi-file YAML spec into a single-file JSON spec (a use case that I consider quite common when you are doing code generation).
+I started this project while I was working on some OpenAPI-based custom code generator. At that time, I tried several libraries for bundling a multi-file YAML spec into a single-file JSON spec (a pretty common use case for code generation).
 
 Long story short, I never managed to find a library that satisfies the following requirements, even for the simplest specs:
 
-- `paths` references inlined, all other references locally resolved into `components/*` depending on their types.
+- `paths` references inlined, all other references locally resolved into `components/*`.
 - generate readable local references, not `#/paths/~1api~1v1~garbledstuff/post/requestBody/content/application~1json/schema/properties/oh/god/why`
 - Javascript library
 - no preprocessing required with a manual tool

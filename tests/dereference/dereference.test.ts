@@ -1,5 +1,4 @@
 import path from 'path';
-import { bundle } from '../../src/openapi/bundle';
 import { dereferenceOpenApiSpec, parseOpenApiSpec } from '../../src';
 
 const runTest = (testDir: string) => {
@@ -11,7 +10,7 @@ const runTest = (testDir: string) => {
 
 const TEST_DIRS = ['test-api1', 'composition-api1'];
 
-describe('bundle', () => {
+describe('dereference', () => {
   for (let i = 0; i < TEST_DIRS.length; i++) {
     it(TEST_DIRS[i], () => {
       runTest(TEST_DIRS[i]);

@@ -7,7 +7,7 @@
     "/api/resource": {
       "get": {
         "responses": {
-          "204": {
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
@@ -175,8 +175,8 @@
                       "discriminator": {
                         "propertyName": "discriminator",
                         "mapping": {
-                          "type1": "paths/~1api~1resource/get/responses/204/content/application~1json/schema/properties/oneOfPropMapping/oneOf/0",
-                          "type2": "paths/~1api~1resource/get/responses/204/content/application~1json/schema/properties/oneOfPropMapping/oneOf/1"
+                          "type1": "paths/~1api~1resource/get/responses/200/content/application~1json/schema/properties/oneOfPropMapping/oneOf/0",
+                          "type2": "paths/~1api~1resource/get/responses/200/content/application~1json/schema/properties/oneOfPropMapping/oneOf/1"
                         }
                       }
                     }
