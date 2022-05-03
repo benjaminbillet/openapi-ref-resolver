@@ -33,12 +33,12 @@ export interface VisitorEventProps {
   objectPath: VisitedPath;
 }
 
-export interface PathEventProps extends VisitorEventProps {
+export interface PathEvent extends VisitorEventProps {
   type: EventType.PATH;
   pathParentKey: string;
 }
 
-export interface MappingEventProps {
+export interface MappingEvent {
   type: EventType.MAPPING;
   refs: OpenApiNode[];
   mapping: Dict;
@@ -46,12 +46,12 @@ export interface MappingEventProps {
   baseFile: string;
 }
 
-export interface ComponentEventProps extends VisitorEventProps {
+export interface ComponentEvent extends VisitorEventProps {
   type: EventType.COMPONENT;
   objectType: ObjectType;
 }
 
-export type VisitorEvent = PathEventProps | MappingEventProps | ComponentEventProps;
+export type VisitorEvent = PathEvent | MappingEvent | ComponentEvent;
 
 export type VisitorCallback = (event: VisitorEvent) => void;
 

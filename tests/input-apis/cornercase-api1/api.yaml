@@ -1,0 +1,14 @@
+openapi: 3.0.2
+info:
+  title: Cornercase API
+paths:
+  /api/resource:
+    get:
+      parameters:
+        - name: param
+          in: query
+          schema:
+            $ref: './cornercase1.yaml#/cornercase1/subkey'
+      responses:
+        '204':
+          description: No Content

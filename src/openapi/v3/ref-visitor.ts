@@ -1,11 +1,11 @@
 import ReferenceSolver from '../ref-solver';
 import {
-  ComponentEventProps,
+  ComponentEvent,
   EventType,
-  MappingEventProps,
+  MappingEvent,
   ObjectType,
   ParsedRef,
-  PathEventProps,
+  PathEvent,
   VisitedPath,
   VisitorCallback,
 } from './types';
@@ -21,7 +21,7 @@ const buildComponentEvent = (
   resolvedValue: OpenApiNode,
   objectPath: VisitedPath,
   resolvedDocument: OpenApiNode,
-): ComponentEventProps => ({
+): ComponentEvent => ({
   type: EventType.COMPONENT,
   objectType,
   originalRef,
@@ -40,7 +40,7 @@ const buildPathEvent = (
   objectPath: VisitedPath,
   resolvedDocument: OpenApiNode,
   pathParentKey: string,
-): PathEventProps => ({
+): PathEvent => ({
   type: EventType.PATH,
   originalRef,
   parsedRef,
@@ -56,7 +56,7 @@ const buildMappingEvent = (
   mapping: Dict,
   document: OpenApiNode,
   baseFile: string,
-): MappingEventProps => ({
+): MappingEvent => ({
   type: EventType.MAPPING,
   refs,
   mapping,
@@ -177,7 +177,15 @@ const visitRequestBody = (
     nextDocument = doc;
     nextObject = value;
     callback(
-      buildComponentEvent(ObjectType.REQUEST_BODY, requestBody.$ref, ref, requestBody, nextObject, objectPath, nextDocument),
+      buildComponentEvent(
+        ObjectType.REQUEST_BODY,
+        requestBody.$ref,
+        ref,
+        requestBody,
+        nextObject,
+        objectPath,
+        nextDocument,
+      ),
     );
   }
   visitMediaTypes(nextDocument, nextBaseFile, refSolver, [...objectPath, 'content'], nextObject.content, callback);
@@ -216,7 +224,9 @@ const visitCallbacks = (
   Object.entries<OpenApiNode>(callbacks).forEach(([name, callback]) => {
     if (refSolver.isReference(callback)) {
       const { value, ref, document: doc } = refSolver.resolve(callback.$ref, document, baseFile);
-      visitorCallback(buildComponentEvent(ObjectType.CALLBACK, callback.$ref, ref, callback, value, [...objectPath, name], doc));
+      visitorCallback(
+        buildComponentEvent(ObjectType.CALLBACK, callback.$ref, ref, callback, value, [...objectPath, name], doc),
+      );
     }
   });
 };
@@ -287,35 +297,23 @@ const visitResponses = (
   if (!responses) {
     return;
   }
-  Object.entries<OpenApiNode>(responses).forEach(([method, response]) => {
+  Object.entries<OpenApiNode>(responses).forEach(([statusCode, response]) => {
     let nextBaseFile = baseFile;
     let nextDocument = document;
     let nextObject = response;
-    objectPath = [...objectPath, method];
+    objectPath = [...objectPath, statusCode];
     if (refSolver.isReference(response)) {
       const { value, ref, document: doc } = refSolver.resolve(response.$ref, document, baseFile);
       nextBaseFile = ref.remote;
       nextDocument = doc;
       nextObject = value;
-      callback(buildComponentEvent(ObjectType.RESPONSE, response.$ref, ref, response, nextObject, objectPath, nextDocument));
+      callback(
+        buildComponentEvent(ObjectType.RESPONSE, response.$ref, ref, response, nextObject, objectPath, nextDocument),
+      );
     }
-    visitMediaTypes(
-      nextDocument,
-      nextBaseFile,
-      refSolver,
-      [...objectPath, 'content'],
-      nextObject.content,
-      callback,
-    );
-    visitHeaders(
-      nextDocument,
-      nextBaseFile,
-      refSolver,
-      [...objectPath, 'headers'],
-      nextObject.headers,
-      callback,
-    );
-    visitLinks(nextDocument, nextBaseFile, refSolver, [...objectPath, method, 'links'], nextObject.links, callback);
+    visitMediaTypes(nextDocument, nextBaseFile, refSolver, [...objectPath, 'content'], nextObject.content, callback);
+    visitHeaders(nextDocument, nextBaseFile, refSolver, [...objectPath, 'headers'], nextObject.headers, callback);
+    visitLinks(nextDocument, nextBaseFile, refSolver, [...objectPath, 'links'], nextObject.links, callback);
   });
 };
 
@@ -334,16 +332,18 @@ const visitPathParameters = (
     let nextBaseFile = baseFile;
     let nextDocument = document;
     let nextObject = parameter;
-    const objectPath: VisitedPath = ['paths', index];
+    objectPath = [...objectPath, index];
     if (refSolver.isReference(parameter)) {
       const { value, ref, document: doc } = refSolver.resolve(parameter.$ref, document, baseFile);
       nextBaseFile = ref.remote;
       nextDocument = doc;
       nextObject = value;
-      callback(buildComponentEvent(ObjectType.PARAMETER, parameter.$ref, ref, parameter, nextObject, objectPath, nextDocument));
+      callback(
+        buildComponentEvent(ObjectType.PARAMETER, parameter.$ref, ref, parameter, nextObject, objectPath, nextDocument),
+      );
     }
-    visitSchema(nextDocument, nextBaseFile, refSolver, objectPath, nextObject.schema, callback);
-    visitExamples(nextDocument, nextBaseFile, refSolver, objectPath, nextObject.examples, callback);
+    visitSchema(nextDocument, nextBaseFile, refSolver, [...objectPath, 'schema'], nextObject.schema, callback);
+    visitExamples(nextDocument, nextBaseFile, refSolver, [...objectPath, 'examples'], nextObject.examples, callback);
   });
 };
 

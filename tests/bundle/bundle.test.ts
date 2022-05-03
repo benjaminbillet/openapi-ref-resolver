@@ -8,7 +8,7 @@ const runTest = (testDir: string) => {
   expect(spec).toEqual(expected);
 };
 
-const TEST_DIRS = ['test-api1', 'composition-api1'];
+const TEST_DIRS = ['test-api1', 'composition-api1', 'cornercase-api1'];
 
 describe('bundle', () => {
   for (let i = 0; i < TEST_DIRS.length; i++) {

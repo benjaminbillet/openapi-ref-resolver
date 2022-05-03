@@ -4,7 +4,6 @@ import fs from 'fs';
 import { getProtocol } from '../util/uri';
 import { Dict, OpenApiNode } from '../types/common';
 
-
 export default class {
   private refCache: Dict<OpenApiNode> = {};
 
@@ -25,7 +24,7 @@ export default class {
     return this.resolveFile(ref, baseFile);
   }
 
-  private followPath(document: any, path: string): OpenApiNode {
+  public followLocalPath(document: any, path: string): OpenApiNode {
     const parts = path.split('/');
     const value = parts.reduce((result, part) => {
       return result[part.replaceAll('~0', '~').replaceAll('~1', '/')];
@@ -35,11 +34,11 @@ export default class {
 
   private resolveLocal(ref: string, baseFile: string, document: OpenApiNode) {
     const localPath = ref.substring(2);
-    const value = this.followPath(document, localPath);
+    const value = this.followLocalPath(document, localPath);
     return {
       value,
       document,
-      ref: { remote: baseFile, local: localPath, full: `${baseFile}/${localPath}` },
+      ref: { remote: baseFile, local: localPath, full: `${baseFile}#/${localPath}` },
     };
   }
 
@@ -52,11 +51,11 @@ export default class {
       document = yaml.load(fs.readFileSync(absoluteFilePath).toString()) as OpenApiNode;
       this.refCache[absoluteFilePath] = document;
     }
-    const value = this.followPath(document, localPath);
+    const value = this.followLocalPath(document, localPath);
     return {
       value,
       document,
-      ref: { remote: absoluteFilePath, local: localPath, full: `${absoluteFilePath}/${localPath}` },
+      ref: { remote: absoluteFilePath, local: localPath, full: `${absoluteFilePath}#/${localPath}` },
     };
   }
 }

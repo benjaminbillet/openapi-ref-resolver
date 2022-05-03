@@ -1,0 +1,40 @@
+cornercase1:
+  subkey:
+    oneOf:
+      - type: object
+        properties:
+          discriminator:
+            type: string
+          field1:
+            type: string
+      - type: object
+        properties:
+          discriminator:
+            type: string
+          field2:
+            type: string
+      - $ref: '#/cornercase1/third-option'
+      - $ref: '#/fourth-option'
+    discriminator:
+      propertyName: discriminator
+      mapping:
+        value1: '#/cornercase1/subkey/oneOf/0'
+        value2: '#/cornercase1/subkey/oneOf/1'
+        value3: '#/cornercase1/third-option'
+        value4: '#/fourth-option'
+
+  third-option:
+    type: object
+    properties:
+      discriminator:
+        type: string
+      field3:
+        type: string
+
+fourth-option:
+  type: object
+  properties:
+    discriminator:
+      type: string
+    field4:
+      type: string

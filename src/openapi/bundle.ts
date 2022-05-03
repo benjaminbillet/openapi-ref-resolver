@@ -1,54 +1,93 @@
 import { Dict, OpenApiNode } from '../types/common';
 import path from 'path';
 import { visit } from './v3/ref-visitor';
-import { EventType, ObjectType } from './v3/types';
+import { ComponentEvent, EventType, MappingEvent, ObjectType, PathEvent } from './v3/types';
 import ReferenceSolver from './ref-solver';
 
-const analyzeRefs = (openapiDoc: OpenApiNode, baseFile: string) => {
-  const refSolver = new ReferenceSolver();
-
+interface Context {
   // maps absolute references to local references
-  const originalRefToLocalRef: Dict = {};
+  originalRefToLocalRef: Dict;
   // maps local references to corresponding ref objects
-  const localRefToOriginalRefObjs: Dict<OpenApiNode[]> = {};
+  localRefToOriginalRefObjs: Dict<OpenApiNode[]>;
   // resolved openapi components
+  components: Dict<Dict<OpenApiNode>>;
+  // resolved openapi paths
+  paths: Dict<OpenApiNode>;
+  refSolver: ReferenceSolver;
+}
+
+const onPathVisited = (context: Context, event: PathEvent) => {
+  context.paths[event.pathParentKey || ''] = event.resolvedValue;
+};
+
+const onMappingVisited = (context: Context, event: MappingEvent) => {
+  Object.entries(event.mapping).forEach(([value, ref]) => {
+    const { ref: resolvedRef } = context.refSolver.resolve(ref, event.document, event.baseFile);
+    let localRef = context.originalRefToLocalRef[resolvedRef.full];
+    if (localRef == null) {
+      // we have a local reference to a composition branch
+      const parts = resolvedRef.local.split('/');
+      const index = parts.pop();
+      const composeType = parts.pop();
+      if (index != null && (composeType === 'oneOf' || composeType === 'anyOf' || composeType === 'allOf')) {
+        const parentRef = resolvedRef.full.substring(
+          0,
+          resolvedRef.full.length - index.length - composeType.length - 2,
+        );
+        localRef = context.originalRefToLocalRef[parentRef];
+        if (localRef != null) {
+          localRef = `${localRef}/${composeType}/${index}`;
+        }
+      }
+    }
+    event.mapping[value] = localRef || event.mapping[value];
+  });
+};
+
+const onComponentVisited = (context: Context, event: ComponentEvent, rootFile: string) => {
+  const { objectType, parsedRef, originalValue, resolvedValue } = event;
+  if (parsedRef.remote === rootFile && parsedRef.local.startsWith('components')) {
+    return;
+  }
+  const localRefParts = parsedRef.local.split('/');
+  let key = localRefParts.join('-');
+  if (context.components[event.objectType][key] && !context.originalRefToLocalRef[parsedRef.full]) {
+    // duplicate reference name, add the file name
+    key = `${path.parse(parsedRef.remote).name}-${key}`;
+  }
+  // TODO if key is still a duplicate, aggressively converts the full absolute ref into a key
+
+  const localRef = `#/components/${objectType}/${key}`;
+  context.originalRefToLocalRef[parsedRef.full] = localRef;
+  context.localRefToOriginalRefObjs[localRef] = context.localRefToOriginalRefObjs[localRef] || [];
+  context.localRefToOriginalRefObjs[localRef].push(originalValue);
+  context.components[objectType][key] = resolvedValue;
+};
+
+const analyzeRefs = (openapiDoc: OpenApiNode, rootFile: string) => {
   const components: Dict<Dict<OpenApiNode>> = openapiDoc.components || {};
   Object.values(ObjectType).forEach((type) => {
     components[type] = components[type] || {};
   });
-  // resolved openapi paths
-  const paths: Dict<OpenApiNode> = {};
-  visit(openapiDoc, baseFile, refSolver, (event) => {
+  const context: Context = {
+    components,
+    originalRefToLocalRef: {},
+    localRefToOriginalRefObjs: {},
+    paths: {},
+    refSolver: new ReferenceSolver(),
+  };
+  visit(openapiDoc, rootFile, context.refSolver, (event) => {
     if (event.type === EventType.PATH) {
-      paths[event.pathParentKey || ''] = event.resolvedValue;
+      onPathVisited(context, event);
       return;
     }
     if (event.type === EventType.MAPPING) {
-      Object.entries(event.mapping).forEach(([type, ref]) => {
-        const { ref: resolvedRef } = refSolver.resolve(ref, event.document, event.baseFile);
-        event.mapping[type] = originalRefToLocalRef[resolvedRef.full];
-      });
+      onMappingVisited(context, event);
       return;
     }
-
-    const { objectType, parsedRef, originalValue, resolvedValue } = event;
-    if (parsedRef.remote === baseFile && parsedRef.local.startsWith('components')) {
-      return;
-    }
-    const localRefParts = parsedRef.local.split('/');
-    let key = localRefParts.join('-');
-    if (components[event.objectType][key] && !originalRefToLocalRef[parsedRef.full]) {
-      key = `${path.parse(parsedRef.remote).name}-${key}`;
-    }
-    // TODO if key is still a duplicate, aggressively converts the full absolute ref into a key
-
-    const localRef = `#/components/${objectType}/${key}`;
-    originalRefToLocalRef[parsedRef.full] = localRef;
-    localRefToOriginalRefObjs[localRef] = localRefToOriginalRefObjs[localRef] || [];
-    localRefToOriginalRefObjs[localRef].push(originalValue);
-    components[objectType][key] = resolvedValue;
+    onComponentVisited(context, event, rootFile);
   });
-  return { paths, components, localRefToOriginalRefObjs };
+  return context;
 };
 
 export const bundle = (openapiDoc: OpenApiNode, baseFile: string) => {

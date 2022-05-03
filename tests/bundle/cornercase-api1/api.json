@@ -1,0 +1,91 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Cornercase API"
+  },
+  "paths": {
+    "/api/resource": {
+      "get": {
+        "parameters": [
+          {
+            "name": "param",
+            "in": "query",
+            "schema": { "$ref": "#/components/schemas/cornercase1-subkey" }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "cornercase1-subkey": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "discriminator": {
+                "type": "string"
+              },
+              "field1": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "properties": {
+              "discriminator": {
+                "type": "string"
+              },
+              "field2": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/cornercase1-third-option"
+          },
+          {
+            "$ref": "#/components/schemas/fourth-option"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "discriminator",
+          "mapping": {
+            "value1": "#/components/schemas/cornercase1-subkey/oneOf/0",
+            "value2": "#/components/schemas/cornercase1-subkey/oneOf/1",
+            "value3": "#/components/schemas/cornercase1-third-option",
+            "value4": "#/components/schemas/fourth-option"
+          }
+        }
+      },
+      "cornercase1-third-option": {
+        "type": "object",
+        "properties": {
+          "discriminator": {
+            "type": "string"
+          },
+          "field3": {
+            "type": "string"
+          }
+        }
+      },
+      "fourth-option": {
+        "type": "object",
+        "properties": {
+          "discriminator": {
+            "type": "string"
+          },
+          "field4": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
