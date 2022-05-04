@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "strict": true,
-    "target": "es2022",
+    "target": "es2021",
     "module": "esnext",
     "moduleResolution": "node",
     "allowJs": true,
