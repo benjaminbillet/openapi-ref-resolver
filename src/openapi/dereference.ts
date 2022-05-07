@@ -8,6 +8,7 @@ interface Context {
   // maps components references to paths references
   refsToPaths: Dict;
   refSolver: ReferenceSolver;
+  recursiveReferences: Dict<OpenApiNode>;
 }
 
 const onMappingVisited = (context: Context, event: MappingEvent) => {
@@ -33,9 +34,18 @@ const onMappingVisited = (context: Context, event: MappingEvent) => {
 };
 
 const onComponentVisited = (context: Context, event: ComponentEvent) => {
-  const { originalValue, resolvedValue, objectPath, parsedRef } = event;
-  delete originalValue.$ref;
-  Object.assign(originalValue, resolvedValue);
+  const { originalValue, resolvedValue, originalRef, objectPath, parsedRef } = event;
+  if (resolvedValue.$ref) {
+    context.recursiveReferences[resolvedValue.$ref] = context.recursiveReferences[originalRef] || originalValue;
+    return;
+  }
+
+  let valueToUpdate = context.recursiveReferences[originalRef];
+  if (valueToUpdate == null) {
+    valueToUpdate = originalValue;
+  }
+  delete valueToUpdate.$ref;
+  Object.assign(valueToUpdate, resolvedValue);
 
   context.refsToPaths[parsedRef.local] = objectPath
     .map((x) => x.toString().replaceAll('~', '~0').replaceAll('/', '~1'))
@@ -45,6 +55,7 @@ const onComponentVisited = (context: Context, event: ComponentEvent) => {
 const replaceRefs = (openapiDoc: OpenApiNode) => {
   const context: Context = {
     refsToPaths: {},
+    recursiveReferences: {},
     refSolver: new ReferenceSolver(),
   };
 

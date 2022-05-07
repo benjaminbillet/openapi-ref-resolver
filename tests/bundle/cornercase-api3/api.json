@@ -1,0 +1,39 @@
+{
+  "info": {
+    "title": "Recursive references"
+  },
+  "openapi": "3.0.2",
+  "paths": {
+    "/api/resource": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "param",
+            "schema": {
+              "$ref": "#/components/schemas/cornercase"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "cornercase": {
+        "$ref": "#/components/schemas/cornercase-cornercase"
+      },
+      "cornercase-cornercase": {
+        "$ref": "#/components/schemas/local-cornercase"
+      },
+      "local-cornercase": {
+        "type": "string"
+      }
+    }
+  }
+}

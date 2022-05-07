@@ -1,0 +1,26 @@
+{
+  "info": {
+    "title": "Recursive references"
+  },
+  "openapi": "3.0.2",
+  "paths": {
+    "/api/resource": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "param",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    }
+  }
+}

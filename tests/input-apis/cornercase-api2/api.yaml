@@ -1,0 +1,22 @@
+openapi: 3.0.2
+info:
+  title: Reference to a subkey in local file
+paths:
+  /api/resource:
+    get:
+      parameters:
+        - name: param
+          in: query
+          schema:
+            $ref: '#/components/schemas/cornercase/properties/field'
+      responses:
+        '204':
+          description: No Content
+
+components:
+  schemas:
+    cornercase:
+      type: object
+      properties:
+        field:
+          type: string

@@ -8,7 +8,14 @@ const runTest = (testDir: string) => {
   expect(spec).toEqual(expected);
 };
 
-const TEST_DIRS = ['test-api1', 'composition-api1', 'cornercase-api1'];
+const TEST_DIRS = [
+  'test-api1',
+  'composition-api1',
+  'cornercase-api1',
+  'cornercase-api2',
+  'cornercase-api3',
+  'cornercase-api4',
+];
 
 describe('dereference', () => {
   for (let i = 0; i < TEST_DIRS.length; i++) {

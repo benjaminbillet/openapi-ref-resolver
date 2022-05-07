@@ -1,5 +1,9 @@
 module.exports = {
-  preset: 'ts-jest',
   testEnvironment: 'node',
   roots: ['tests'],
+  'moduleFileExtensions': ['ts', 'js'],
+  'transform': {
+    '\\.ts': 'babel-jest',
+    '\\.js$': 'babel-jest',
+  }
 };

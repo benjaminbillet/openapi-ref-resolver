@@ -1,19 +1,27 @@
 {
-  "openapi": "3.0.2",
   "info": {
-    "title": "Cornercase API"
+    "title": "Reference to a subkey in external file, with complex composition remapping"
   },
+  "openapi": "3.0.2",
   "paths": {
     "/api/resource": {
       "get": {
         "parameters": [
           {
-            "name": "param",
             "in": "query",
+            "name": "param",
             "schema": {
+              "discriminator": {
+                "mapping": {
+                  "value1": "#/paths/~1api~1resource/get/parameters/0/schema/oneOf/0",
+                  "value2": "#/paths/~1api~1resource/get/parameters/0/schema/oneOf/1",
+                  "value3": "#/paths/~1api~1resource/get/parameters/0/schema/oneOf/2",
+                  "value4": "#/paths/~1api~1resource/get/parameters/0/schema/oneOf/3"
+                },
+                "propertyName": "discriminator"
+              },
               "oneOf": [
                 {
-                  "type": "object",
                   "properties": {
                     "discriminator": {
                       "type": "string"
@@ -21,10 +29,10 @@
                     "field1": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "type": "object"
                 },
                 {
-                  "type": "object",
                   "properties": {
                     "discriminator": {
                       "type": "string"
@@ -32,10 +40,10 @@
                     "field2": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "type": "object"
                 },
                 {
-                  "type": "object",
                   "properties": {
                     "discriminator": {
                       "type": "string"
@@ -43,10 +51,10 @@
                     "field3": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "type": "object"
                 },
                 {
-                  "type": "object",
                   "properties": {
                     "discriminator": {
                       "type": "string"
@@ -54,18 +62,10 @@
                     "field4": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "type": "object"
                 }
-              ],
-              "discriminator": {
-                "propertyName": "discriminator",
-                "mapping": {
-                  "value1": "#/paths/~1api~1resource/get/parameters/0/schema/oneOf/0",
-                  "value2": "#/paths/~1api~1resource/get/parameters/0/schema/oneOf/1",
-                  "value3": "#/paths/~1api~1resource/get/parameters/0/schema/oneOf/2",
-                  "value4": "#/paths/~1api~1resource/get/parameters/0/schema/oneOf/3"
-              }
-              }
+              ]
             }
           }
         ],

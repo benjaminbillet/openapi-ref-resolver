@@ -1,0 +1,5 @@
+cornercase:
+  $ref: '#/local-cornercase'
+
+local-cornercase:
+  type: string

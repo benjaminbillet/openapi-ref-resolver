@@ -1,0 +1,22 @@
+openapi: 3.0.2
+info:
+  title: External reference inside local reference
+paths:
+  /api/resource:
+    get:
+      parameters:
+        - name: param
+          in: query
+          schema:
+            $ref: '#/components/schemas/cornercase'
+      responses:
+        '204':
+          description: No Content
+
+components:
+  schemas:
+    cornercase:
+      type: object
+      properties:
+        prop:
+          $ref: './cornercase.yaml#/cornercase'

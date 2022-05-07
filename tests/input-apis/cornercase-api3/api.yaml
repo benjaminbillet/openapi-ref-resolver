@@ -1,6 +1,6 @@
 openapi: 3.0.2
 info:
-  title: Reference to a subkey in external file, with complex composition remapping
+  title: Recursive references
 paths:
   /api/resource:
     get:
@@ -8,7 +8,12 @@ paths:
         - name: param
           in: query
           schema:
-            $ref: './cornercase1.yaml#/cornercase1/subkey'
+            $ref: '#/components/schemas/cornercase'
       responses:
         '204':
           description: No Content
+
+components:
+  schemas:
+    cornercase:
+      $ref: './cornercase.yaml#/cornercase'

@@ -104,6 +104,9 @@ const visitSchema = (
     nextDocument = doc;
     nextObject = value;
     callback(buildComponentEvent(ObjectType.SCHEMA, schema.$ref, ref, schema, nextObject, objectPath, nextDocument));
+    if (refSolver.isReference(value)) {
+      visitSchema(nextDocument, nextBaseFile, refSolver, [...objectPath, '$ref'], value, callback);
+    }
   }
 
   visitComposition(

@@ -1,0 +1,41 @@
+{
+  "info": {
+    "title": "External reference inside local reference"
+  },
+  "openapi": "3.0.2",
+  "paths": {
+    "/api/resource": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "param",
+            "schema": {
+              "$ref": "#/components/schemas/cornercase"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "cornercase": {
+        "properties": {
+          "prop": {
+            "$ref": "#/components/schemas/cornercase-cornercase"
+          }
+        },
+        "type": "object"
+      },
+      "cornercase-cornercase": {
+        "type": "string"
+      }
+    }
+  }
+}

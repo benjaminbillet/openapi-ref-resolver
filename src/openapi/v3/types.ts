@@ -13,9 +13,9 @@ export enum ObjectType {
 }
 
 export enum EventType {
-  PATH,
-  MAPPING,
-  COMPONENT,
+  PATH = 'path',
+  MAPPING = 'mapping',
+  COMPONENT = 'component',
 }
 
 export interface ParsedRef {

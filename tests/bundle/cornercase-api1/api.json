@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.2",
   "info": {
-    "title": "Cornercase API"
+    "title": "Reference to a subkey in external file, with complex composition remapping"
   },
   "paths": {
     "/api/resource": {
@@ -10,7 +10,9 @@
           {
             "name": "param",
             "in": "query",
-            "schema": { "$ref": "#/components/schemas/cornercase1-subkey" }
+            "schema": {
+              "$ref": "#/components/schemas/cornercase1-subkey"
+            }
           }
         ],
         "responses": {

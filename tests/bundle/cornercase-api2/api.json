@@ -1,0 +1,38 @@
+{
+  "info": {
+    "title": "Reference to a subkey in local file"
+  },
+  "openapi": "3.0.2",
+  "paths": {
+    "/api/resource": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "param",
+            "schema": {
+              "$ref": "#/components/schemas/cornercase/properties/field"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "cornercase": {
+        "properties": {
+          "field": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    }
+  }
+}
