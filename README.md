@@ -16,7 +16,7 @@ Bundle:
 import { bundleOpenApiSpec } from 'openapi-ref-resolver';
 
 const bundled = bundleOpenApiSpec('./api.yaml');
-console.log(JSON.stringify(bundled, null, 2));
+console.log(JSON.stringify(bundled.document, null, 2));
 ```
 
 Dereference:
@@ -24,7 +24,7 @@ Dereference:
 import { dereferenceOpenApiSpec } from 'openapi-ref-resolver';
 
 const dereferenced = dereferenceOpenApiSpec('./api.yaml');
-console.log(JSON.stringify(dereferenced, null, 2));
+console.log(JSON.stringify(dereferenced.document, null, 2));
 ```
 
 ## Missing features

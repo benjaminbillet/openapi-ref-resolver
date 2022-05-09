@@ -423,7 +423,7 @@ export const visit = (
       const objectPath: VisitedPath = ['components', 'securitySchemes', key];
       if (refSolver.isReference(scheme)) {
         const { value, ref, document: doc } = refSolver.resolve(scheme.$ref, openapiDoc, baseFile);
-        buildComponentEvent(ObjectType.PARAMETER, scheme.$ref, ref, scheme, value, objectPath, doc);
+        callback(buildComponentEvent(ObjectType.SECURITY_SCHEME, scheme.$ref, ref, scheme, value, objectPath, doc));
       }
     });
   }

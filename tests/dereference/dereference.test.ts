@@ -3,7 +3,7 @@ import { dereferenceOpenApiSpec, parseOpenApiSpec } from '../../src';
 
 const runTest = (testDir: string) => {
   const rootFile = path.resolve(__dirname, '..', 'input-apis', testDir, 'api.yaml');
-  const spec = dereferenceOpenApiSpec(rootFile);
+  const spec = dereferenceOpenApiSpec(rootFile).document;
   const expected = parseOpenApiSpec(path.resolve(__dirname, testDir, 'api.json'));
   expect(spec).toEqual(expected);
 };

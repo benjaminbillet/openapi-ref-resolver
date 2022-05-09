@@ -22,12 +22,12 @@ export const parseOpenApiSpec = (rootFile: string, type?: FileFormat): OpenApiNo
   return JSON.parse(data);
 };
 
-export const bundleOpenApiSpec = (rootFile: string, type?: FileFormat): OpenApiNode => {
+export const bundleOpenApiSpec = (rootFile: string, type?: FileFormat) => {
   const openApi = parseOpenApiSpec(rootFile, type);
   return bundle(openApi, rootFile);
 };
 
-export const dereferenceOpenApiSpec = (rootFile: string, type?: FileFormat): OpenApiNode => {
+export const dereferenceOpenApiSpec = (rootFile: string, type?: FileFormat) => {
   const openApi = parseOpenApiSpec(rootFile, type);
   return dereference(openApi, rootFile);
 };

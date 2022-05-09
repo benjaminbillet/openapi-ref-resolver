@@ -3,7 +3,7 @@ import { bundleOpenApiSpec, parseOpenApiSpec } from '../../src';
 
 const runTest = (testDir: string) => {
   const rootFile = path.resolve(__dirname, '..', 'input-apis', testDir, 'api.yaml');
-  const spec = bundleOpenApiSpec(rootFile);
+  const spec = bundleOpenApiSpec(rootFile).document;
   const expected = parseOpenApiSpec(path.resolve(__dirname, testDir, 'api.json'));
   expect(spec).toEqual(expected);
 };

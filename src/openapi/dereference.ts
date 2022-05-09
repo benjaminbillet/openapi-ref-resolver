@@ -52,14 +52,16 @@ const onComponentVisited = (context: Context, event: ComponentEvent) => {
     .join('/');
 };
 
-const replaceRefs = (openapiDoc: OpenApiNode) => {
+export const dereference = (openapiDoc: OpenApiNode, baseFile: string) => {
+  const { pathRefs, document } = bundle(openapiDoc, baseFile);
+
   const context: Context = {
     refsToPaths: {},
     recursiveReferences: {},
     refSolver: new ReferenceSolver(),
   };
 
-  visit(openapiDoc, '', context.refSolver, (event) => {
+  visit(document, '', context.refSolver, (event) => {
     if (event.type === EventType.MAPPING) {
       onMappingVisited(context, event);
       return;
@@ -69,12 +71,6 @@ const replaceRefs = (openapiDoc: OpenApiNode) => {
       return;
     }
   });
-  return openapiDoc;
-};
-
-export const dereference = (openapiDoc: OpenApiNode, baseFile: string) => {
-  const bundled = bundle(openapiDoc, baseFile);
-  const finalResult = replaceRefs(bundled);
-  delete finalResult.components;
-  return finalResult;
+  delete document.components;
+  return { document, pathRefs };
 };

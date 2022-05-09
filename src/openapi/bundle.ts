@@ -1,4 +1,4 @@
-import { Dict, OpenApiNode } from '../types/common';
+import { Dict, OpenApiNode, ResolvedRef } from '../types/common';
 import path from 'path';
 import { visit } from './v3/ref-visitor';
 import { ComponentEvent, EventType, MappingEvent, ObjectType, PathEvent } from './v3/types';
@@ -12,12 +12,12 @@ interface Context {
   // resolved openapi components
   components: Dict<Dict<OpenApiNode>>;
   // resolved openapi paths
-  paths: Dict<OpenApiNode>;
+  paths: Dict<{ resolved: OpenApiNode; ref?: ResolvedRef }>;
   refSolver: ReferenceSolver;
 }
 
 const onPathVisited = (context: Context, event: PathEvent) => {
-  context.paths[event.pathParentKey || ''] = event.resolvedValue;
+  context.paths[event.pathParentKey || ''] = { resolved: event.resolvedValue, ref: event.parsedRef };
 };
 
 const onMappingVisited = (context: Context, event: MappingEvent) => {
@@ -91,9 +91,10 @@ const analyzeRefs = (openapiDoc: OpenApiNode, rootFile: string) => {
 };
 
 export const bundle = (openapiDoc: OpenApiNode, baseFile: string) => {
-  const { paths, components, localRefToOriginalRefObjs } = analyzeRefs(openapiDoc, path.resolve(baseFile));
+  const context = analyzeRefs(openapiDoc, path.resolve(baseFile));
+  const { paths, components, localRefToOriginalRefObjs } = context;
   Object.entries(paths).forEach(([pathName, path]) => {
-    openapiDoc.paths[pathName] = path;
+    openapiDoc.paths[pathName] = path.resolved;
   });
   openapiDoc.components = Object.fromEntries(
     Object.entries(components).filter(([, items]) => Object.values(items).length > 0),
@@ -103,5 +104,8 @@ export const bundle = (openapiDoc: OpenApiNode, baseFile: string) => {
       r.$ref = localRef;
     });
   });
-  return openapiDoc;
+  return {
+    pathRefs: Object.fromEntries(Object.entries(paths).map(([key, path]) => [key, path.ref])),
+    document: openapiDoc,
+  };
 };
