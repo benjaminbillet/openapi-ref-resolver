@@ -272,6 +272,22 @@ const visitLinks = (
   });
 };
 
+const visitEncodings = (
+  document: OpenApiNode,
+  baseFile: string,
+  refSolver: ReferenceSolver,
+  objectPath: VisitedPath,
+  encodings: Dict<OpenApiNode> | undefined,
+  callback: VisitorCallback,
+) => {
+  if (!encodings) {
+    return;
+  }
+  Object.entries<OpenApiNode>(encodings).forEach(([name, encoding]) => {
+    visitHeaders(document, baseFile, refSolver, [...objectPath, name], encoding.headers, callback);
+  });
+};
+
 const visitMediaTypes = (
   document: OpenApiNode,
   baseFile: string,
@@ -286,6 +302,7 @@ const visitMediaTypes = (
   Object.entries<OpenApiNode>(mediaTypes).forEach(([key, media]) => {
     visitSchema(document, baseFile, refSolver, [...objectPath, key, 'schema'], media.schema, callback);
     visitExamples(document, baseFile, refSolver, [...objectPath, key, 'examples'], media.examples, callback);
+    visitEncodings(document, baseFile, refSolver, [...objectPath, key, 'encoding'], media.encoding, callback);
   });
 };
 
@@ -347,6 +364,7 @@ const visitPathParameters = (
     }
     visitSchema(nextDocument, nextBaseFile, refSolver, [...objectPath, 'schema'], nextObject.schema, callback);
     visitExamples(nextDocument, nextBaseFile, refSolver, [...objectPath, 'examples'], nextObject.examples, callback);
+    visitMediaTypes(nextDocument, nextBaseFile, refSolver, [...objectPath, 'content'], nextObject.content, callback);
   });
 };
 
@@ -398,6 +416,15 @@ export const visit = (
         const operation = nextObject[method];
         visitOperation(nextDocument, nextBaseFile, refSolver, [...objectPath, method], operation, callback);
       });
+    });
+  }
+  if (openapiDoc.components?.securitySchemes) {
+    Object.entries(openapiDoc.components?.securitySchemes).forEach(([key, scheme]: any) => {
+      const objectPath: VisitedPath = ['components', 'securitySchemes', key];
+      if (refSolver.isReference(scheme)) {
+        const { value, ref, document: doc } = refSolver.resolve(scheme.$ref, openapiDoc, baseFile);
+        buildComponentEvent(ObjectType.PARAMETER, scheme.$ref, ref, scheme, value, objectPath, doc);
+      }
     });
   }
 };
