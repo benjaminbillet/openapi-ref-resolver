@@ -1,6 +1,6 @@
 {
   "name": "openapi-ref-resolver",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,7 +16,7 @@
     "package": "npm run clean ; webpack --config webpack.config.js --mode=production",
     "test": "jest --passWithNoTests",
     "test:cov": "jest --passWithNoTests --coverage",
-    "prepublish": "npm run package"
+    "prepublishOnly": "npm run package"
   },
   "repository": {
     "type": "git",
